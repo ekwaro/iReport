@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Main page</title>
+	<link rel="stylesheet" type="text/css" href="./css/style.css">
+</head>
+<body>
+	<div class="header">
+		<div class="application_name">
+			<h1><b>iREPORT</b> WEB APPLICATION</h1>
+		</div>
+		<div class="dashboard" id="mydashboard">
+			<ul>
+				<li><a href="./admin/admin.html">Admin</a></li>
+
+				<li><a href="./users/userdashboard.html">User Workspace</a></li>
+				<li><a href="./users/userprofile.html">User profile</a></li>
+				<li><button><a href="./users/index.html">Login</a></button></li>
+				<li><button type="submit" class="logout"><a href="">Logout</a></button></li>
+			</ul>
+			<a href="javascript:void(0);" class="icon" onclick="myFunction()"> <i class="fa fa-bars"></i></a>
+			
+		</div>
+		
+	</div>
+		
+	</div>
+	<div class="body">
+		<img src="./img/download.jpg">
+		<p>
+			Corruption is a huge bane to Africa’s development. African countries must develop novel and
+localised solutions that will curb this menace, hence the birth of iReporter. iReporter enables
+any/every citizen to bring any form of corruption to the notice of appropriate authorities and the
+general public. Users can also report on things that needs government intervention
+		</p>
+		
+	</div>
+	<script type="text/javascript">
+		myFunction(){
+			var x = document.getElementById("mydashboard");
+			if (x.className === "dashboard"){
+				x.className += "responsive";
+			}
+			else{
+				x.className = "dashboard"
+			}
+
+		}
+		
+	</script>
+
+</body>
+</html>
