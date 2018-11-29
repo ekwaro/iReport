@@ -105,6 +105,74 @@ class GetSpecificRedflag(MethodView):
                 "error": "Item with the Id not found"
             }), 404
 
+class UpdateLocation(MethodView):
+    @jwt_required
+    def patch(self, redflag_id):
+        update = []
+        item = request.get_json()
+        location = item.get('location')
+        if location == '' or type(location) is not float:
+            response_object = {
+                "status": 404,
+                "error": "Location should be a decimal number and must be filled"
+            }
+            return jsonify(response_object), 404
+        for redflag in incidents:
+            if redflag['id'] == redflag_id:
+                redflag['location'] = location
+                if len(update) != 0:
+                    update.pop(0)
+                update.append(redflag['id'])
+
+        if len(update) > 0:
+            return jsonify({
+                "status": 200,
+                "data": update,
+                "Message": "Updated red-flag record’s location"
+            }), 200
+
+        else:
+            return jsonify({
+                "status": 204,
+                "error": "Content not found"
+            })
+
+
+class UpdateComment(MethodView):
+    @jwt_required
+    def patch(self, redflag_id):
+        Incident.id_not_found(redflag_id)
+        update = []
+        item = request.get_json()
+        comment = item.get('comment')
+        if comment == '' or type(comment) is int:
+            response_object = {
+                "status": 404,
+                "error": "comment should be words and must be filled"
+            }
+            return jsonify(response_object), 404
+        for redflag in incidents:
+            if redflag['id'] == redflag_id:
+                redflag['comment'] = comment
+                if len(update) != 0:
+                    update.pop(0)
+                update.append(redflag['id'])
+
+        if len(update) > 0:
+            return jsonify({
+                "status": 200,
+                "data": update,
+                "Message": "Updated red-flag record’s comment"
+            }), 200
+        else:
+            return jsonify(
+                {
+                    "status": 204,
+                    "Message": "Content not found"
+                }
+            ), 204
+
+
 
 register_welcome = Welcome.as_view('welcome_api')
 incident_blueprint.add_url_rule('/api/v1/welcome',
@@ -125,3 +193,15 @@ register_get_a_single_redflag = GetSpecificRedflag.as_view('get_single_red_flag'
 incident_blueprint.add_url_rule('/api/v1/redflags/<int:id>',
                                 view_func=register_get_a_single_redflag,
                                 methods=['GET'])
+
+
+register_update_location = UpdateLocation.as_view('update_location_api')
+incident_blueprint.add_url_rule('/api/v1/<int:redflag_id>/locations',
+                                view_func=register_update_location,
+                                methods=['PATCH']
+                                )
+
+register_update_comment = UpdateComment.as_view('update_comment_api')
+incident_blueprint.add_url_rule('/api/v1/redflags/<int:redflag_id>/comments',
+                                view_func=register_update_comment,
+                                methods=['PATCH'])
