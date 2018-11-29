@@ -1,9 +1,10 @@
-from flask import Blueprint, jsonify, request, make_response, abort
+from flask import Blueprint, request, jsonify
 from flask_jwt_extended import (create_access_token)
 from flask.views import MethodView
 import datetime
 from ..models.usermodel import users, User
 import re
+from werkzeug.security import generate_password_hash, check_password_hash
 
 auth_blueprint = Blueprint('views', __name__)
 
@@ -32,25 +33,13 @@ class RegisterUser(MethodView):
         registered = datetime.datetime.utcnow()
         isAdmin = False
 
-        if firstname == '' or type(firstname) is int:
-            abort(make_response(jsonify({"status": 400,
-                                         "error": "firstname must be a word and must be filled in"
-                                         }), 400))
+        User.validate_user_input(firstname, "firstname must be a word and must be filled in")
+        User.validate_user_input(lastname, "lastname must be a word and must be filled in")
+        User.validate_user_input(othernames, "othernames must be a word")
+        User.validate_user_input(email, "email must be filled in")
 
-        if lastname == '' or type(lastname) is int:
-            abort(make_response(jsonify({"status": 400,
-                                         "error": "lastname must be a word and must be filled in"
-                                         }), 400))
 
-        if type(othernames) is int:
-            abort(make_response(jsonify({"status": 400,
-                                         "error": "othernames must be a word"
-                                         }), 400))
 
-        if email == '' or type(email) is int:
-            abort(make_response(jsonify({"status": 400,
-                                         "error": "email must be filled in"
-                                         }), 400))
 
         email_regex = re.compile(r'''(
         [a-zA-Z0-9._%+-]+ # username
@@ -61,29 +50,25 @@ class RegisterUser(MethodView):
         )''', re.VERBOSE)
         valid_email = email_regex.search(email)
         if not valid_email:
-            abort(make_response(jsonify({
+            return jsonify({
                 "status": 400,
                 "Message": "email must be of the form (username@domain.something)"
-            })))
+            }), 400
 
         for user in users:
             if user['email'] == email:
-                abort(make_response(jsonify({
+                return jsonify({
                     "status": 200,
                     "error": "email already exists"
-                })))
+                })
 
-        if phonenumber == '' or type(phonenumber) is int:
-            abort(make_response(jsonify({
-                "status": 400,
-                "error": "Enter a valid phone number"
-            }), 400))
+        User.validate_user_input(phonenumber, "Enter a valid phone number")
 
         if len(str(phonenumber)) != 12:
-            abort(make_response(jsonify({
+            return jsonify({
                 "status": 400,
                 "error": "Make sure the phone number is 12 digits"
-            }), 400))
+            }), 400
 
         phone = re.compile(r'''(
 
@@ -95,29 +80,25 @@ class RegisterUser(MethodView):
             ))''', re.VERBOSE)
         valid_phone_number = phone.search(phonenumber)
         if not valid_phone_number:
-            abort(make_response(jsonify({
+            return jsonify({
                 'status': 400,
                 'error': "Enter valid phone number eg(256 *** ****) or (256-***-****) or(256.***.****)"
-            }), 400))
+            }), 400
 
-        if username == '' or type(username) is int:
-            abort(make_response(jsonify({
-                "status": 400,
-                "error": "Username must be filled and must be a string"
-            }), 400))
+        User.validate_user_input(username,  "Username must be filled and must be a string")
 
         for user in users:
             if user['username'] == username:
-                abort(make_response(jsonify({
+                return jsonify({
                     "status": 204,
                     "error": "User name already exists"
-                }), 204))
+                }), 204
 
         if not password or len(password) < 8:
-            abort(make_response(jsonify({
+            return jsonify({
                 "status": 400,
                 "error": "Password must be filled and must be atleast 8 characters"
-            }), 400))
+            }), 400
 
         user = User(id, firstname, lastname, othernames, email, phonenumber, username, password, registered, isAdmin)
         json_data = dict(
@@ -128,7 +109,7 @@ class RegisterUser(MethodView):
             email=user.email,
             phonenumber=user.phonenumber,
             username=user.username,
-            password=user.password,
+            password=generate_password_hash(user.password, method='sha256'),
             registered=user.registered,
             isAdmin=isAdmin
         )
@@ -152,30 +133,25 @@ class LoginUser(MethodView):
         data = request.get_json()
         username = data.get('username')
         password = data.get('password')
-        if not username:
-            response_object = {
-                "status": 400,
-                "error": "username is required"
-            }
-            abort(make_response(jsonify(response_object), 400))
-        if not password:
-            response_object = {
-                "status": 400,
-                "error": "Password cannot be empty"
-            }
-            abort(make_response(jsonify(response_object), 400))
+
+        User.validate_user_login(username, "username is required")
+        User.validate_user_login(password, "Password cannot be empty")
 
         for person in users:
-            if person['username'] == username or person['password'] == password:
+            print(users)
+            print(check_password_hash(person['password'], password))
+            print(person['username'] == username)
+            if person['username'] == username and check_password_hash(person['password'], password):
+                print(users)
                 access_token = create_access_token(username)
                 response = {
                     "status": 200,
                     "data": [access_token]
                 }
+                print(users)
                 return jsonify(response), 200
 
-            else:
-                abort(make_response(jsonify({"status": 404, "error": "Invalid username or password"}), 404))
+        return jsonify({"status": 404, "error": "Invalid username or password"}), 404
 
 
 register_firstpage = FirstPage.as_view('firstpage_api')
