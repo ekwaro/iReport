@@ -128,7 +128,7 @@ class TestCases:
             "username": "",
             "password": "per5677hgg"
         }))
-        assert response.status_code == 200
+        assert response.status_code == 400
 
     def test_wrong_password(self, client):
         response = client.post('/api/v1/register', content_type="application/json", data=json.dumps({
