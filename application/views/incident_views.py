@@ -70,6 +70,20 @@ class Welcome(MethodView):
             "red-flag": json_data
         }), 201
 
+    @jwt_required
+    def get(self):
+        if len(incidents) <= 0:
+            return jsonify({
+                "Status": 404,
+                "error": "No records created yet, Please create one"
+            }), 404
+        else:
+            return jsonify({
+                "status": 200,
+                "Data": incidents
+            }), 200
+
+
 register_welcome = Welcome.as_view('welcome_api')
 incident_blueprint.add_url_rule('/api/v1/welcome',
                                 view_func=register_welcome,
@@ -80,3 +94,7 @@ incident_blueprint.add_url_rule('/api/v1/redflags',
                                 view_func=register_create_red_flag,
                                 methods=['POST'])
 
+register_get_all_redflags = Welcome.as_view('get_all_redflags_api')
+incident_blueprint.add_url_rule('/api/v1/redflags',
+                                view_func=register_get_all_redflags,
+                                methods=['GET'])
