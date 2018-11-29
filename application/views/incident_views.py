@@ -84,6 +84,28 @@ class Welcome(MethodView):
             }), 200
 
 
+class GetSpecificRedflag(MethodView):
+    @jwt_required
+    def get(self, id):
+        Incident.id_not_found(id)
+
+        for redflag in incidents:
+            if redflag['id'] == id:
+                data.append(redflag)
+
+        if len(data) > 0:
+            return jsonify({
+                "status": 200,
+                "data": data
+            }), 200
+
+        else:
+            return jsonify({
+                "status": 404,
+                "error": "Item with the Id not found"
+            }), 404
+
+
 register_welcome = Welcome.as_view('welcome_api')
 incident_blueprint.add_url_rule('/api/v1/welcome',
                                 view_func=register_welcome,
@@ -97,4 +119,9 @@ incident_blueprint.add_url_rule('/api/v1/redflags',
 register_get_all_redflags = Welcome.as_view('get_all_redflags_api')
 incident_blueprint.add_url_rule('/api/v1/redflags',
                                 view_func=register_get_all_redflags,
+                                methods=['GET'])
+
+register_get_a_single_redflag = GetSpecificRedflag.as_view('get_single_red_flag')
+incident_blueprint.add_url_rule('/api/v1/redflags/<int:id>',
+                                view_func=register_get_a_single_redflag,
                                 methods=['GET'])
