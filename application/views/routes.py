@@ -124,8 +124,38 @@ class RegisterUser(MethodView):
         }
         return jsonify(responseObject), 201
 
+class LoginUser(MethodView):
+    def post(self):
+        data = request.get_json()
+        username = data.get('username')
+        password = data.get('password')
+
+        User.validate_user_login(username, "username is required")
+        User.validate_user_login(password, "Password cannot be empty")
+
+        for person in users:
+            print(users)
+            print(check_password_hash(person['password'], password))
+            print(person['username'] == username)
+            if person['username'] == username and check_password_hash(person['password'], password):
+                print(users)
+                access_token = create_access_token(username)
+                response = {
+                    "status": 200,
+                    "data": [access_token]
+                }
+                print(users)
+                return jsonify(response), 200
+
+        return jsonify({"status": 404, "error": "Invalid username or password"}), 404
+
+
+
 register_firstpage = FirstPage.as_view('firstpage_api')
 auth_blueprint.add_url_rule('/api/v1', view_func=register_firstpage, methods=['GET'])
 
 register_user = RegisterUser.as_view('register_api')
 auth_blueprint.add_url_rule('/api/v1/register', view_func=register_user, methods=['POST'])
+
+register_login = LoginUser.as_view('login_api')
+auth_blueprint.add_url_rule('/api/v1/login', view_func=register_login, methods=['POST'])
