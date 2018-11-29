@@ -173,6 +173,30 @@ class UpdateComment(MethodView):
             ), 204
 
 
+class DeleteRedflag(MethodView):
+    @jwt_required
+    def delete(self, redflag_id):
+        Incident.id_not_found(redflag_id)
+        delete_redflag = []
+        for redflag in incidents:
+            if redflag['id'] == redflag_id:
+                incidents.remove(redflag)
+                if len(delete_redflag) !=0:
+                    delete_redflag.pop(0)
+                delete_redflag.append(redflag['id'])
+
+        if len(delete_redflag) > 0:
+            response_object = {
+                "status": 200,
+                "id": delete_redflag
+            }
+            return jsonify(response_object), 200
+        else:
+            return jsonify({
+                "status": 404,
+                "error": "Content not found"
+            }), 404
+
 
 register_welcome = Welcome.as_view('welcome_api')
 incident_blueprint.add_url_rule('/api/v1/welcome',
@@ -205,3 +229,10 @@ register_update_comment = UpdateComment.as_view('update_comment_api')
 incident_blueprint.add_url_rule('/api/v1/redflags/<int:redflag_id>/comments',
                                 view_func=register_update_comment,
                                 methods=['PATCH'])
+
+
+register_delete_red_flag = DeleteRedflag.as_view('delete_redflag_api')
+incident_blueprint.add_url_rule('/api/v1/redflags/<int:redflag_id>',
+                                view_func=register_delete_red_flag,
+                                methods=['DELETE'])
+
