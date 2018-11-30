@@ -2,7 +2,6 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import (create_access_token)
 from flask.views import MethodView
 import datetime
-
 from ..models.usermodel import users, User
 import re
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -160,5 +159,3 @@ auth_blueprint.add_url_rule('/api/v1/register', view_func=register_user, methods
 
 register_login = LoginUser.as_view('login_api')
 auth_blueprint.add_url_rule('/api/v1/login', view_func=register_login, methods=['POST'])
-
-
