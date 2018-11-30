@@ -150,7 +150,6 @@ class LoginUser(MethodView):
         return jsonify({"status": 404, "error": "Invalid username or password"}), 404
 
 
-
 register_firstpage = FirstPage.as_view('firstpage_api')
 auth_blueprint.add_url_rule('/api/v1', view_func=register_firstpage, methods=['GET'])
 
