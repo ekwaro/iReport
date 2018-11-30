@@ -2,8 +2,8 @@ from flask import jsonify
 incidents = [
     {
         "comment": "comments",
-        "createdBy": "dominic",
-        "createdOn": "Wed, 28 Nov 2018 04:06:50 GMT",
+        "createdby": "dominic",
+        "createdon": "Wed, 28 Nov 2018 04:06:50 GMT",
         "id": 1,
         "incident_type": "red-flag",
         "location": 0.11,
@@ -13,10 +13,10 @@ incidents = [
 
 
 class Incident:
-    def __init__(self, id, createdOn, createdBy, incident_type, location, status, comment):
+    def __init__(self, id, createdon, createdby, incident_type, location, status, comment):
         self.id = id
-        self.createdOn = createdOn
-        self.createdBy = createdBy
+        self.createdon = createdon
+        self.createdby = createdby
         self.incident_type = incident_type
         self.location = location
         self.status = status
@@ -27,7 +27,7 @@ class Incident:
         if id < 0 or len(incidents) < id:
             return jsonify({
                 "status": 400,
-                "message": "Item with the id nt found"
+                "message": "Item with the id not found"
             })
 
 

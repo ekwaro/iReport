@@ -13,7 +13,7 @@ class Welcome(MethodView):
     def get(self):
         response_object = {
             "status": 200,
-            "Message": "Welcome To The IREPORTER WELCOME PAGE"
+            "message": "Welcome To The IREPORTER WELCOME PAGE"
         }
         return jsonify(response_object), 200
 
@@ -21,42 +21,42 @@ class Welcome(MethodView):
     def post(self):
         data = request.get_json()
         id = len(incidents) + 1
-        createdOn = datetime.datetime.utcnow()
-        createdBy = get_jwt_identity()
-        incident_type = data.get('Incident_type')
+        createdon = datetime.datetime.utcnow()
+        createdby = get_jwt_identity()
+        incident_type = data.get('incident_type')
         location = data.get('location')
         status = data.get('status')
         comment = data.get('comment')
 
-        user = Incident(id, createdOn, createdBy, incident_type, location, status, comment)
+        user = Incident(id, createdon, createdby, incident_type, location, status, comment)
         if user.incident_type == '' or user.incident_type is int or user.incident_type not in incident_types:
             abort(make_response(jsonify({
-                "Status": 400,
-                "Message": "Incident_type must be either a red flag or Intervention record "
+                "status": 400,
+                "message": "Incident_type must be either a red flag or Intervention record "
             }), 400))
 
         if user.location == '' or type(user.location) is not float:
             abort(make_response(jsonify({
                 "status": 400,
-                "Message": "location must be filled and must be a number of the form 1.0000"
+                "message": "location must be filled and must be a number of the form 1.0000"
             }), 400))
 
         if user.status not in statuses:
             abort(make_response(jsonify({
                 "status": 400,
-                "Message": "status must be either (draft, resolved, rejected,under investigation)"
+                "message": "status must be either (draft, resolved, rejected,under investigation)"
             }), 400))
 
         if type(user.comment) is int:
             abort(make_response(jsonify({
-                "Message": "Comment must be a sentence",
+                "message": "Comment must be a sentence",
                 "status": 400
             }), 400))
 
         json_data = dict(
             id=user.id,
-            createdOn=user.createdOn,
-            createdBy=user.createdBy,
+            createdon=user.createdon,
+            createdby=user.createdby,
             incident_type=user.incident_type,
             location=user.location,
             status=user.status,
@@ -66,7 +66,7 @@ class Welcome(MethodView):
         incidents.append(json_data)
         return jsonify({
             "status": 201,
-            "Message": "Created a red flag successfully",
+            "message": "Created a red flag successfully",
             "red-flag": json_data
         }), 201
 
@@ -109,7 +109,6 @@ class GetSpecificRedflag(MethodView):
 class UpdateLocation(MethodView):
     @jwt_required
     def patch(self, redflag_id):
-        Incident.id_not_found(redflag_id)
         update = []
         item = request.get_json()
         location = item.get('location')
@@ -122,15 +121,13 @@ class UpdateLocation(MethodView):
         for redflag in incidents:
             if redflag['id'] == redflag_id:
                 redflag['location'] = location
-                if len(update) !=0:
-                    update.pop(0)
                 update.append(redflag['id'])
 
         if len(update) > 0:
             return jsonify({
                 "status": 200,
                 "data": update,
-                "Message": "Updated red-flag record’s location"
+                "message": "Updated red-flag record’s location"
             }), 200
 
         else:
@@ -156,15 +153,13 @@ class UpdateComment(MethodView):
         for redflag in incidents:
             if redflag['id'] == redflag_id:
                 redflag['comment'] = comment
-                if len(update) != 0:
-                    update.pop(0)
-                update.append(redflag['id'])
+                update.append(redflag_id)
 
         if len(update) > 0:
             return jsonify({
                 "status": 200,
                 "data": update,
-                "Message": "Updated red-flag record’s comment"
+                "message": "Updated red-flag record’s comment"
             }), 200
         else:
             return jsonify(
@@ -183,9 +178,7 @@ class DeleteRedflag(MethodView):
         for redflag in incidents:
             if redflag['id'] == redflag_id:
                 incidents.remove(redflag)
-                if len(delete_redflag) !=0:
-                    delete_redflag.pop(0)
-                delete_redflag.append(redflag['id'])
+                delete_redflag.append(redflag_id)
 
         if len(delete_redflag) > 0:
             response_object = {
