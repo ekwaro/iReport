@@ -11,6 +11,9 @@ class TestIncidents:
 
     @pytest.fixture()
     def login_user(self, client):
+        """
+
+        """
         response = client.post('/api/v1/login', content_type='application/json', data=json.dumps(dict(
             username="dominic",
             password="123456789"
@@ -19,15 +22,21 @@ class TestIncidents:
         item = data['data'][0]
         return item
 
-    def test_post_incident(self, client, login_user):
+    @pytest.fixture()
+    def post_content(self, client, login_user):
         token = login_user
-        response = client.post('api/v1/redflags', headers=dict(Authorization='Bearer ' + token),  content_type='application/json', data=json.dumps(dict(
-            incident_type="red-flag",
-            status="draft",
-            comment="comments",
-            location=0.11
-        )))
-        data = json.loads(response.data.decode())
+        response = client.post('api/v1/redflags', headers=dict(Authorization='Bearer ' + token),
+                               content_type='application/json', data=json.dumps(dict(
+                incident_type="red-flag",
+                status="draft",
+                comment="comments",
+                location=0.11
+            )))
+        return response
+
+    def test_post_incident(self, post_content):
+
+        data = json.loads(post_content.data.decode())
         assert data['status'] == 201
 
     def test_input_wrong_incident_type(self, client, login_user):
@@ -88,7 +97,7 @@ class TestIncidents:
         token = login_user
         response = client.get('/api/v1/redflags/9', headers=dict(Authorization='Bearer ' + token))
         data = json.loads(response.data.decode())
-        assert data['status'] == 404
+        assert data['status'] == 400
         assert data['error'] == "Item with the Id not found"
 
     def test_success_get_single_item(self, client, login_user):
@@ -99,7 +108,7 @@ class TestIncidents:
 
     def test_success_updating_comment(self, client, login_user):
         token = login_user
-        response = client.patch('/api/v1/redflags/1/comments', headers=dict(Authorization='Bearer ' + token), content_type='application/json', data=json.dumps(dict(
+        response = client.patch('/api/v1/redflags/1/comment', headers=dict(Authorization='Bearer ' + token), content_type='application/json', data=json.dumps(dict(
            comment="This is a new comment"
         )))
         data = json.loads(response.data.decode())
@@ -108,26 +117,26 @@ class TestIncidents:
 
     def test_failure_updating_comment(self, client, login_user):
         token = login_user
-        response = client.patch('/api/v1/redflags/1/comments', headers=dict(Authorization='Bearer ' + token), content_type='application/json', data=json.dumps(dict(
+        response = client.patch('/api/v1/redflags/1/comment', headers=dict(Authorization='Bearer ' + token), content_type='application/json', data=json.dumps(dict(
             comment=5
 
         )))
         data = json.loads(response.data.decode())
-        assert data['status'] == 404
+        assert data['status'] == 400
 
     def test_failure_updating_location(self, client, login_user):
         token = login_user
-        response = client.patch('/api/v1/1/locations', headers=dict(Authorization='Bearer ' + token), content_type='application/json', data=json.dumps(dict(
+        response = client.patch('/api/v1/1/location', headers=dict(Authorization='Bearer ' + token), content_type='application/json', data=json.dumps(dict(
             location=''
 
         )))
         data = json.loads(response.data.decode())
-        assert data['status'] == 404
+        assert data['status'] == 400
         assert data['error'] == "Location should be a decimal number and must be filled"
 
     def test_success_updating_location(self, client, login_user):
         token = login_user
-        response = client.patch('/api/v1/1/locations', headers=dict(Authorization='Bearer ' + token), content_type='application/json', data=json.dumps(dict(
+        response = client.patch('/api/v1/1/location', headers=dict(Authorization='Bearer ' + token), content_type='application/json', data=json.dumps(dict(
             location=0.455
 
         )))
@@ -146,7 +155,7 @@ class TestIncidents:
         response = client.delete('/api/v1/redflags/45', headers=dict(Authorization='Bearer ' + token))
 
         data = json.loads(response.data.decode())
-        assert data['status'] == 404
+        assert data['status'] == 400
 
     def test_first_page(self, client, login_user):
         token = login_user

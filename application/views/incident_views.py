@@ -101,9 +101,9 @@ class GetSpecificRedflag(MethodView):
 
         else:
             return jsonify({
-                "status": 404,
+                "status": 400,
                 "error": "Item with the Id not found"
-            }), 404
+            }), 400
 
 
 class UpdateLocation(MethodView):
@@ -114,10 +114,10 @@ class UpdateLocation(MethodView):
         location = item.get('location')
         if location == '' or type(location) is not float:
             response_object = {
-                "status": 404,
+                "status": 400,
                 "error": "Location should be a decimal number and must be filled"
             }
-            return jsonify(response_object), 404
+            return jsonify(response_object), 400
         for redflag in incidents:
             if redflag['id'] == redflag_id:
                 redflag['location'] = location
@@ -146,10 +146,10 @@ class UpdateComment(MethodView):
         comment = item.get('comment')
         if comment == '' or type(comment) is int:
             response_object = {
-                "status": 404,
+                "status": 400,
                 "error": "comment should be words and must be filled"
             }
-            return jsonify(response_object), 404
+            return jsonify(response_object), 400
         for redflag in incidents:
             if redflag['id'] == redflag_id:
                 redflag['comment'] = comment
@@ -188,9 +188,9 @@ class DeleteRedflag(MethodView):
             return jsonify(response_object), 200
         else:
             return jsonify({
-                "status": 404,
+                "status": 400,
                 "error": "Content not found"
-            }), 404
+            }), 400
 
 
 register_welcome = Welcome.as_view('welcome_api')
@@ -214,13 +214,13 @@ incident_blueprint.add_url_rule('/api/v1/redflags/<int:id>',
                                 methods=['GET'])
 
 register_update_location = UpdateLocation.as_view('update_location_api')
-incident_blueprint.add_url_rule('/api/v1/<int:redflag_id>/locations',
+incident_blueprint.add_url_rule('/api/v1/<int:redflag_id>/location',
                                 view_func=register_update_location,
                                 methods=['PATCH']
                                 )
 
 register_update_comment = UpdateComment.as_view('update_comment_api')
-incident_blueprint.add_url_rule('/api/v1/redflags/<int:redflag_id>/comments',
+incident_blueprint.add_url_rule('/api/v1/redflags/<int:redflag_id>/comment',
                                 view_func=register_update_comment,
                                 methods=['PATCH'])
 
