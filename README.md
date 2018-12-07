@@ -39,10 +39,10 @@ POST|/api/v1/register| Used to register a user
 POST|/api/v1/login| Used to log the user In to the application
 POST|/api/v1/redflags| Used for creating redflag/intervention record
 GET|/api/v1/redflags| Used to get all the red flag records created by the user
-GET|/api/v1/redflags/<id>| Used to get specific redflag/ intervention record created by the user
-PATCH|/api/v1/redflags/<id>/comments| Used to update comment on a specific red flag record
-PATCH|/api/v1/redflags/<id>/location| Used to update location on a specific redflag record
-DELETE|/api/v1/redflags/<id>| used to delete a specific red flag record
+GET|/api/v1/redflags/id| Used to get specific redflag/ intervention record created by the user
+PATCH|/api/v1/redflags/id/comments| Used to update comment on a specific red flag record
+PATCH|/api/v1/redflags/id/location| Used to update location on a specific redflag record
+DELETE|/api/v1/redflags/id| used to delete a specific red flag record
 
 
 ### Tools Used
