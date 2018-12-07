@@ -28,7 +28,7 @@ records .
 * Users can change the geolocation (Lat Long Coordinates) attached to their red-flag or
 intervention records .
 * Admin can change the status of a record to either under investigation, rejected (in the
-event of a false claim) or resolved (in the event that the claim has been investigated and resolved)
+event of a false claim) or resolve (in the event that the claim has been investigated and resolved)
 
 ### Endpoints
 
